@@ -1,3 +1,29 @@
+from scipy.spatial import distance
+
+def euc(a, b):
+    return distance.euclidean(a, b)
+
+class ScrappyKNN():
+    def fit(self, X_train, y_train):
+        self.X_train = X_train
+        self.y_train = y_train
+    def predict(self, X_test):
+        predictions = []
+        for row in X_test:
+            label = self.closest(row)
+            predictions.append(label)
+        return predictions
+    def closest(self, row):
+        best_dist = euc(row, self.X_train[0])
+        best_index = 0
+        for i in range(1, len(self.X_train)):
+            dist = euc(row, self.X_train[i])
+            if dist < best_dist:
+                best_dist = dist
+                best_index = i
+        return self.y_train[best_index]
+
+
 #import a dataset
 from sklearn import datasets
 iris = datasets.load_iris()
@@ -8,16 +34,19 @@ y = iris.target
 from sklearn.model_selection  import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .5)
 
-classifier_type = int(input("Choose your type of classifier (0 for DecisionTreeClassifier and 1 for KNeighborsClassifier): "))
+classifier_type = int(input("Choose your type of classifier (0 for DecisionTreeClassifier, 1 for KNeighborsClassifier or 2 for ScrappyKNN): "))
 
-if classifier_type == 1:
-    from sklearn.neighbors import KNeighborsClassifier
-    my_classifier = KNeighborsClassifier()
-    print("Trying with KNeighborsClassifier")
-else:
+if classifier_type == 0:
     from sklearn import tree
     my_classifier = tree.DecisionTreeClassifier()
     print("Trying with DecisionTreeClassifier")
+elif classifier_type == 1:
+    from sklearn.neighbors import KNeighborsClassifier
+    my_classifier = KNeighborsClassifier()
+    print("Trying with KNeighborsClassifier")
+elif classifier_type == 2:
+    my_classifier = ScrappyKNN()
+    print("Trying with ScrappyKNN")
 
 my_classifier.fit(X_train, y_train)
 
